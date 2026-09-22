@@ -13,6 +13,7 @@ DB_PATH = "books.db"
 
 
 def scrape_book(book_url: str) -> dict:
+    """Fetch and extract the key metadata fields from a single book page."""
     response = requests.get(book_url, timeout=10)
     response.raise_for_status()
     soup = BeautifulSoup(response.text, "html.parser")
@@ -35,6 +36,7 @@ def scrape_book(book_url: str) -> dict:
 
 
 def build_dataframe() -> pd.DataFrame:
+    """Scrape all catalog pages, clean the fields, and return a typed DataFrame."""
     all_books: List[dict] = []
 
     for page in range(1, 6):
@@ -87,6 +89,7 @@ def build_dataframe() -> pd.DataFrame:
 
 
 def create_database(df: pd.DataFrame) -> None:
+    """Write the cleaned book data into the SQLite database with categories and books tables."""
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA foreign_keys = ON;")
 
@@ -159,6 +162,7 @@ def create_database(df: pd.DataFrame) -> None:
 
 
 def run_queries() -> Dict[str, pd.DataFrame]:
+    """Execute the required SQL queries, print their results, and validate the SQL join against pandas."""
     conn = sqlite3.connect(DB_PATH)
 
     queries = {
@@ -242,6 +246,7 @@ def run_queries() -> Dict[str, pd.DataFrame]:
 
 
 def main() -> None:
+    """Run the end-to-end scraping, validation, database loading, and SQL verification pipeline."""
     df = build_dataframe()
     print(f"\nRows scraped: {len(df)}")
     print(f"Categories: {df['category'].nunique()}")
